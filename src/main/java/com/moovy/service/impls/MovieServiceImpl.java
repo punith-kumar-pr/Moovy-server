@@ -19,7 +19,7 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public List<Movie> getMovieByName() {
+    public List<Movie> getMoviebyName() {
         return List.of();
     }
 }
