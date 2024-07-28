@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Set;
 
 @Entity
 @Data
@@ -36,4 +37,12 @@ public class Movie {
 
     @Column(name = "vote_count")
     private Integer voteCount;
+
+    @ManyToMany ( cascade = { CascadeType.ALL })
+    @JoinTable (
+            name = "moviegenre",
+            joinColumns = @JoinColumn(name = "movie_id"),
+            inverseJoinColumns = @JoinColumn(name = "genre_id")
+    )
+    private Set<Genre> genres;
 }
