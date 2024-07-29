@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface MovieService {
     List<Movie> getAllMovies();
-    List<Movie> getMovieByName();
+    List<Movie> getMovieByTitle(String title);
 }

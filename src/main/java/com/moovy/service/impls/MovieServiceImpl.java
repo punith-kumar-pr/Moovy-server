@@ -18,9 +18,10 @@ public class MovieServiceImpl implements MovieService {
         return movieRepository.findAll();
     }
 
+    // Get movie by Title
     @Override
-    public List<Movie> getMovieByName() {
-        return List.of();
+    public List<Movie> getMovieByTitle(String title) {
+        return movieRepository.getMovieByTitle(title);
     }
 
 }
