@@ -7,4 +7,5 @@ import java.util.List;
 public interface MovieService {
     List<Movie> getAllMovies();
     List<Movie> getMovieByTitle(String title);
+    List<Movie> findMoviesByGenre(String genreName);
 }
