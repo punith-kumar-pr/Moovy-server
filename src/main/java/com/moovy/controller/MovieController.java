@@ -3,10 +3,7 @@ package com.moovy.controller;
 import com.moovy.entity.Movie;
 import com.moovy.service.MovieService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -27,4 +24,11 @@ public class MovieController {
     private List<Movie> getMovieByTitle(@PathVariable("title") String title){
         return movieService.getMovieByTitle(title);
     }
+
+    // getting Movies By genre
+    @GetMapping("/by-genre")
+    public List<Movie> findByGenres_Name(@RequestParam String genre) {
+        return movieService.findMoviesByGenre(genre);
+    }
+
 }

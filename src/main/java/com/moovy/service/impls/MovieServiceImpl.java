@@ -24,4 +24,9 @@ public class MovieServiceImpl implements MovieService {
         return movieRepository.getMovieByTitle(title);
     }
 
+    @Override
+    public List<Movie> findMoviesByGenre(String genreName) {
+        return movieRepository.findByGenres_GenreName(genreName);
+    }
+
 }
