@@ -1,5 +1,6 @@
 package com.moovy.controller;
 
+import com.moovy.MovieGenreDTO;
 import com.moovy.entity.Movie;
 import com.moovy.service.MovieService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +28,8 @@ public class MovieController {
 
     // getting Movies By genre
     @GetMapping("/by-genre")
-    public List<Movie> findByGenres_Name(@RequestParam String genre) {
-        return movieService.findMoviesByGenre(genre);
+    public List<MovieGenreDTO> getMoviesByGenre(@RequestParam String genre) {
+        return movieService.getMoviesByGenre(genre);
     }
 
 }
