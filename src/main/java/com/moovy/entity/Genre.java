@@ -18,8 +18,8 @@ public class Genre {
     @Column(name = "genre_name", nullable = false)
     private String genreName;
 
-    @ManyToMany( mappedBy = "genres")
-    private Set<Movie> movies;
+//    @ManyToMany( mappedBy = "genres")
+//    private Set<Movie> movies;
 
 }
 
