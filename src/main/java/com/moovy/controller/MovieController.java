@@ -1,6 +1,6 @@
 package com.moovy.controller;
 
-import com.moovy.MovieGenreDTO;
+import com.moovy.dtos.MovieGenreDTO;
 import com.moovy.entity.Movie;
 import com.moovy.service.MovieService;
 import org.springframework.beans.factory.annotation.Autowired;

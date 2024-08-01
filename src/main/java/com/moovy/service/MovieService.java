@@ -1,6 +1,6 @@
 package com.moovy.service;
 
-import com.moovy.MovieGenreDTO;
+import com.moovy.dtos.MovieGenreDTO;
 import com.moovy.entity.Movie;
 
 import java.util.List;
