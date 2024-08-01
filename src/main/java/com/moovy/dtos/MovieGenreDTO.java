@@ -1,4 +1,4 @@
-package com.moovy;
+package com.moovy.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

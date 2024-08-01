@@ -1,6 +1,6 @@
 package com.moovy.repository;
 
-import com.moovy.MovieGenreDTO;
+import com.moovy.dtos.MovieGenreDTO;
 import com.moovy.entity.Movie;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

@@ -1,6 +1,6 @@
 package com.moovy.service.impls;
 
-import com.moovy.MovieGenreDTO;
+import com.moovy.dtos.MovieGenreDTO;
 import com.moovy.entity.Movie;
 import com.moovy.repository.MovieRepository;
 import com.moovy.service.MovieService;
