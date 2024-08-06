@@ -42,6 +42,12 @@ public class Movie {
     @Column(name = "summary")
     private String summary;
 
+    @Column(name = "trailerUrl")
+    private String trailerUrl;
+
+    @Column(name = "imageUrl")
+    private String imageUrl;
+
     @OneToMany(mappedBy = "movie")
     private Set<MovieGenre> movieGenres;
 
