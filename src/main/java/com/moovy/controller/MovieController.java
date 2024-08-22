@@ -37,8 +37,14 @@ public class MovieController {
     private ResponseEntity<List<MovieResponseDto>> getResponseEntity(List<Movie> movies){
         List<MovieResponseDto> responseDtos = movies.stream().map(movie -> {
             MovieResponseDto dto = new MovieResponseDto();
+            dto.setAdult(movie.getAdult());
+            dto.setRuntime(movie.getRuntime());
+            dto.setTagline(movie.getTagline());
+            dto.setReleaseDate(movie.getReleaseDate());
             dto.setId(movie.getMovieId());
             dto.setTitle(movie.getTitle());
+            dto.setImageUrl(movie.getImageUrl());
+            dto.setTrailerUrl(movie.getTrailerUrl());
             dto.setVoteAverage(movie.getVoteAverage());
             dto.setVoteCount(movie.getVoteCount());
             dto.setSummary(movie.getSummary());
