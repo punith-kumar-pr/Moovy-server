@@ -1,6 +1,5 @@
 package com.moovy.service.impls;
 
-import com.moovy.dtos.MovieGenreDTO;
 import com.moovy.entity.Movie;
 import com.moovy.repository.MovieRepository;
 import com.moovy.service.MovieService;
@@ -15,9 +14,7 @@ public class MovieServiceImpl implements MovieService {
     @Autowired
     private MovieRepository movieRepository;
 
-    public List<Movie> getAllMovies() {
-        return movieRepository.findAll();
-    }
+    public List<Movie> getAllMovies() { return movieRepository.findAll();}
 
     // Get movie by Title
     @Override
@@ -25,8 +22,7 @@ public class MovieServiceImpl implements MovieService {
         return movieRepository.getMovieByTitle(title);
     }
 
-    @Override
-    public List<MovieGenreDTO> getMoviesByGenre(String genreName) {
+    public List<Movie> findMoviesByGenreName(String genreName) {
         return movieRepository.findMoviesByGenreName(genreName);
     }
 

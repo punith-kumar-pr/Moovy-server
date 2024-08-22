@@ -1,12 +1,14 @@
 package com.moovy.controller;
 
-import com.moovy.dtos.MovieGenreDTO;
+import com.moovy.dto.MovieResponseDto;
 import com.moovy.entity.Movie;
 import com.moovy.service.MovieService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/movies")
@@ -16,20 +18,43 @@ public class MovieController {
     private MovieService movieService;
 
     @GetMapping
-    private List<Movie> getMovies() {
-        return movieService.getAllMovies();
+    private ResponseEntity<List<MovieResponseDto>> getMovies() {
+        List<Movie> movies = movieService.getAllMovies();
+        return getResponseEntity(movies);
     }
-
     // Title can have spaces
     @GetMapping("/{title}")
     private List<Movie> getMovieByTitle(@PathVariable("title") String title){
         return movieService.getMovieByTitle(title);
     }
 
-    // getting Movies By genre
     @GetMapping("/by-genre")
-    public List<MovieGenreDTO> getMoviesByGenre(@RequestParam String genre) {
-        return movieService.getMoviesByGenre(genre);
+    public ResponseEntity<List<MovieResponseDto>> getMoviesByGenre(@RequestParam String genre) {
+        List<Movie> movies = movieService.findMoviesByGenreName(genre);
+        return getResponseEntity(movies);
     }
 
+    private ResponseEntity<List<MovieResponseDto>> getResponseEntity(List<Movie> movies){
+        List<MovieResponseDto> responseDtos = movies.stream().map(movie -> {
+            MovieResponseDto dto = new MovieResponseDto();
+            dto.setId(movie.getMovieId());
+            dto.setTitle(movie.getTitle());
+            dto.setVoteAverage(movie.getVoteAverage());
+            dto.setVoteCount(movie.getVoteCount());
+            dto.setSummary(movie.getSummary());
+
+            dto.setGenres(movie.getMovieGenres().stream()
+                    .map(mg -> {
+                        MovieResponseDto.GenreDto genreDto = new MovieResponseDto.GenreDto();
+                        genreDto.setId(mg.getGenre().getGenreId());
+                        genreDto.setGenreName(mg.getGenre().getGenreName());
+                        return genreDto;
+                    })
+                    .collect(Collectors.toList()));
+
+            return dto;
+        }).collect(Collectors.toList());
+
+        return ResponseEntity.ok(responseDtos);
+    }
 }

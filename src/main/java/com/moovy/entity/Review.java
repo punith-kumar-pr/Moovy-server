@@ -1,4 +1,5 @@
 package com.moovy.entity;
+
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -6,23 +7,23 @@ import java.util.Date;
 
 @Entity
 @Data
-@Table(name = "Ratings")
-public class Rating {
+@Table(name = "Reviews")
+public class Review {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public int ratingId;
+    public int reviewId;
 
-    @Column()
+    @Column
     public int movieId;
 
-    @Column(nullable = false)
+    @Column
     public int userId;
 
-    @Column(nullable = false)
-    public int rating;
+    @Column(columnDefinition = "TEXT")
+    public String reviewText;
 
     @Temporal(TemporalType.DATE)
-    public Date ratingDate;
+    public Date reviewDate;
 
 }
