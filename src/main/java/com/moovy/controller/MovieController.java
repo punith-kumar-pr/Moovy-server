@@ -22,6 +22,13 @@ public class MovieController {
         List<Movie> movies = movieService.getAllMovies();
         return getResponseEntity(movies);
     }
+
+    @GetMapping("/top-rated")
+    private ResponseEntity<List<MovieResponseDto>> getTopRatedMovies(){
+        List<Movie> movies = movieService.getTopRatedMovies();
+        return getResponseEntity(movies);
+    }
+
     // Title can have spaces
     @GetMapping("/{title}")
     private List<Movie> getMovieByTitle(@PathVariable("title") String title){
@@ -48,7 +55,6 @@ public class MovieController {
             dto.setVoteAverage(movie.getVoteAverage());
             dto.setVoteCount(movie.getVoteCount());
             dto.setSummary(movie.getSummary());
-
             dto.setGenres(movie.getMovieGenres().stream()
                     .map(mg -> {
                         MovieResponseDto.GenreDto genreDto = new MovieResponseDto.GenreDto();
