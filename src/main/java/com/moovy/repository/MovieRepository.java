@@ -20,6 +20,10 @@ public interface MovieRepository extends JpaRepository<Movie, Integer> {
             "ORDER BY m.voteAverage DESC, m.voteCount DESC")
     List<Movie> findTopRatedMovies();
 
+    @Query("SELECT m FROM Movie m JOIN m.movieGenres mg JOIN mg.genre g WHERE g.genreName IN :genreNames GROUP BY m")
+    List<Movie> findMoviesByGenres(@Param("genreNames") List<String> genreNames);
+
+
     @Query("SELECT DISTINCT m FROM Movie m " +
             "JOIN m.movieGenres mg " +
             "JOIN mg.genre g " +

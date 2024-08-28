@@ -46,6 +46,12 @@ public class MovieController {
         return getResponseEntity(movies);
     }
 
+    @GetMapping("/by-genres")
+    public ResponseEntity<List<MovieResponseDto>> getMoviesByGenres(@RequestParam List<String> genres) {
+        List<Movie> movies = movieService.getMoviesByGenres(genres);
+        return getResponseEntity(movies);
+    }
+
     private ResponseEntity<List<MovieResponseDto>> getResponseEntity(List<Movie> movies){
         List<MovieResponseDto> responseDtos = movies.stream().map(movie -> {
             MovieResponseDto dto = new MovieResponseDto();
