@@ -9,5 +9,6 @@ public interface MovieService {
     List<Movie> getTopRatedMovies();
     List<Movie> getMovieByTitle(String title);
     List<Movie> findMoviesByGenreName(String genreName);
+    List<Movie> getMoviesByGenres(List<String> genres);
     List<Movie> searchMovies(String query);
 }
