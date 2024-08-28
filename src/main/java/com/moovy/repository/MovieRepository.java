@@ -19,4 +19,13 @@ public interface MovieRepository extends JpaRepository<Movie, Integer> {
             "LEFT JOIN FETCH mg.genre g " +
             "ORDER BY m.voteAverage DESC, m.voteCount DESC")
     List<Movie> findTopRatedMovies();
+
+    @Query("SELECT DISTINCT m FROM Movie m " +
+            "JOIN m.movieGenres mg " +
+            "JOIN mg.genre g " +
+            "WHERE LOWER(m.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
+            "OR LOWER(m.tagline) LIKE LOWER(CONCAT('%', :query, '%')) " +
+            "OR LOWER(m.summary) LIKE LOWER(CONCAT('%', :query, '%')) " +
+            "OR LOWER(g.genreName) LIKE LOWER(CONCAT('%', :query, '%'))")
+    List<Movie> searchMovies(@Param("query") String query);
 }
