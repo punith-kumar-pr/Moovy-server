@@ -29,7 +29,6 @@ public class MovieController {
         return getResponseEntity(movies);
     }
 
-    // Title can have spaces
     @GetMapping("/{title}")
     private List<Movie> getMovieByTitle(@PathVariable("title") String title){
         return movieService.getMovieByTitle(title);
@@ -38,6 +37,12 @@ public class MovieController {
     @GetMapping("/by-genre")
     public ResponseEntity<List<MovieResponseDto>> getMoviesByGenre(@RequestParam String genre) {
         List<Movie> movies = movieService.findMoviesByGenreName(genre);
+        return getResponseEntity(movies);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<MovieResponseDto>> searchMovies(@RequestParam String query) {
+        List<Movie> movies = movieService.searchMovies(query);
         return getResponseEntity(movies);
     }
 
