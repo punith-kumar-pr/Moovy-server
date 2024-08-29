@@ -25,9 +25,9 @@ public class Rating {
     @Column(name = "rating", nullable = false)
     @Min(1)
     @Max(10)
-    /* --- >do this in Database to add constaint in Database level
-    ALTER TABLE rating
-    ADD CONSTRAINT check_rating_range CHECK (rating BETWEEN 1 AND 10);*/
+    /* do this in Database to add constaint in Database level
+            ALTER TABLE rating
+            ADD CONSTRAINT check_rating_range CHECK (rating BETWEEN 1 AND 10);*/
     private Integer rating;
 
     @Column(name = "rating_date")

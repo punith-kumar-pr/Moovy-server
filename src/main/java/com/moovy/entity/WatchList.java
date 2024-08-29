@@ -10,17 +10,17 @@ import java.util.Objects;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "watch_list",
-        uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "movie_id"})}) // Ensure uniqueness
+@Table(name = "watch_list", uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "movie_id"})})
 public class WatchList {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;  // Surrogate key
+    @Column(name = "id", nullable = false)
+    private Long id;  // The only AUTO_INCREMENT column
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;  // Assume User entity is already defined
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "movie_id", nullable = false)
