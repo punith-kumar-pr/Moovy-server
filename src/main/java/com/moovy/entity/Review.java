@@ -14,11 +14,11 @@ public class Review {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public int reviewId;
 
-    @Column
-    public int movieId;
+    @ManyToOne
+    private User user;
 
-    @Column
-    public int userId;
+    @ManyToOne
+    private Movie movie;
 
     @Column(columnDefinition = "TEXT")
     public String reviewText;
