@@ -41,8 +41,8 @@ public class MovieController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<MovieResponseDto>> searchMovies(@RequestParam String query) {
-        List<Movie> movies = movieService.searchMovies(query);
+    public ResponseEntity<List<MovieResponseDto>> searchMovies(@RequestParam String query,@RequestParam(required = false) String genreName) {
+        List<Movie> movies = movieService.searchMovies(query,genreName);
         return getResponseEntity(movies);
     }
 
