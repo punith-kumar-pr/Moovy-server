@@ -30,7 +30,6 @@ public interface MovieRepository extends JpaRepository<Movie, Integer> {
             "WHERE LOWER(m.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
             "OR LOWER(m.tagline) LIKE LOWER(CONCAT('%', :query, '%')) " +
             "OR LOWER(m.summary) LIKE LOWER(CONCAT('%', :query, '%')) " +
-            "OR LOWER(g.genreName) LIKE LOWER(CONCAT('%', :query, '%'))" +
             "AND (:genreName IS NULL OR LOWER(g.genreName) = LOWER(:genreName))"
     )
     List<Movie> searchMovies(@Param("query") String query,@Param("genreName") String genreName);
