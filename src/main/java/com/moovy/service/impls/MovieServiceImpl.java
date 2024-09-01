@@ -27,8 +27,8 @@ public class MovieServiceImpl implements MovieService {
         return movieRepository.findMoviesByGenreName(genreName);
     }
 
-    public List<Movie> searchMovies(String query) {
-        return movieRepository.searchMovies(query);
+    public List<Movie> searchMovies(String query,String genreName) {
+        return movieRepository.searchMovies(query,genreName);
     }
 
     public List<Movie> getMoviesByGenres(List<String> genres) {

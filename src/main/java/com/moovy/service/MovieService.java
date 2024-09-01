@@ -10,5 +10,5 @@ public interface MovieService {
     List<Movie> getMovieByTitle(String title);
     List<Movie> findMoviesByGenreName(String genreName);
     List<Movie> getMoviesByGenres(List<String> genres);
-    List<Movie> searchMovies(String query);
+    List<Movie> searchMovies(String query,String genreName);
 }
