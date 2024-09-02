@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.Objects;
 import java.util.Set;
 
@@ -35,6 +36,16 @@ public class User {
     @Column(name = "last_name")
     private String lastName;
 
+    @Column(name = "gender")
+    @Enumerated(EnumType.STRING) // Store gender as a string (MALE/FEMALE)
+    private Gender gender;
+
+    @Column(name = "mobile")
+    private String mobile; // Include country code, e.g., "+919876543210"
+
+    @Column(name = "dob")
+    private LocalDate dob;
+
     @Column(name = "created_at")
     private LocalDate createdAt;
 
@@ -61,5 +72,9 @@ public class User {
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
         return Objects.equals(userId, user.userId);
+    }
+
+    private enum Gender {
+        MALE, FEMALE
     }
 }
