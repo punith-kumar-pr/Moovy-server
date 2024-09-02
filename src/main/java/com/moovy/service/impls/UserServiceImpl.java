@@ -1,5 +1,6 @@
 package com.moovy.service.impls;
 
+import com.moovy.dto.ChangePasswordDto;
 import com.moovy.entity.User;
 import com.moovy.repository.UserRepository;
 import com.moovy.service.UserService;
@@ -36,6 +37,27 @@ public class UserServiceImpl implements UserService {
             if (user.getLastName() != null) updatedUser.setLastName(user.getLastName());
             updatedUser.setUpdatedAt(LocalDate.now());
             return userRepository.save(updatedUser);
+        } else {
+            throw new RuntimeException("User not found with ID: " + userId);
+        }
+    }
+
+    @Override
+    public User changePassword(ChangePasswordDto changePasswordDto, int userId) {
+        Optional<User> existingUser = userRepository.findById(userId);
+        if (existingUser.isPresent()) {
+            User user = existingUser.get();
+
+            // check for current password matches or not.
+            // doing encryption thing later
+            if (changePasswordDto.getCurrentPassword() != null) {
+                if (!changePasswordDto.getCurrentPassword().equals(user.getPassword())) {
+                    throw new RuntimeException("Incorrect Current Password");
+                }
+            }
+            user.setPassword(changePasswordDto.getNewPassword()); // Hash the new password
+            user.setUpdatedAt(LocalDate.now());
+            return userRepository.save(user);
         } else {
             throw new RuntimeException("User not found with ID: " + userId);
         }
