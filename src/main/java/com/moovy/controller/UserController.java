@@ -1,5 +1,6 @@
 package com.moovy.controller;
 
+import com.moovy.dto.ChangePasswordDto;
 import com.moovy.entity.User;
 import com.moovy.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,5 +21,12 @@ public class UserController {
     @PutMapping("/update/{id}")
     private User updateUser (@RequestBody User user, @PathVariable int id) {
         return userService.updateUser(user, id);
+    }
+
+    @PutMapping("change-password/{id}")
+    private User changePassword(
+            @RequestBody ChangePasswordDto changePasswordDto,
+            @PathVariable int id) {
+        return userService.changePassword(changePasswordDto, id);
     }
 }
