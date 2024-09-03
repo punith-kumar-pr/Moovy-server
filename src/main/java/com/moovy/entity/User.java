@@ -61,6 +61,10 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Rating> ratings;
 
+    private enum Gender {
+        MALE, FEMALE
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(userId);
@@ -72,9 +76,5 @@ public class User {
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
         return Objects.equals(userId, user.userId);
-    }
-
-    private enum Gender {
-        MALE, FEMALE
     }
 }
