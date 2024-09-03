@@ -7,8 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class WatchListRequestDto {
+public class WatchedMoviesRequestDto {
     private int userId;
     private int movieId;
 }
-
