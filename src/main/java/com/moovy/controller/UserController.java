@@ -1,5 +1,6 @@
 package com.moovy.controller;
 
+import com.moovy.dto.ChangeContactDto;
 import com.moovy.dto.ChangePasswordDto;
 import com.moovy.entity.User;
 import com.moovy.service.UserService;
@@ -28,5 +29,12 @@ public class UserController {
             @RequestBody ChangePasswordDto changePasswordDto,
             @PathVariable int id) {
         return userService.changePassword(changePasswordDto, id);
+    }
+
+    @PutMapping("change-contact/{id}")
+    private User changeContact(
+            @RequestBody ChangeContactDto changeContactDto,
+            @PathVariable int id) {
+        return userService.changeContact(changeContactDto, id);
     }
 }

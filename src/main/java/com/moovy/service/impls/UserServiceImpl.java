@@ -1,5 +1,6 @@
 package com.moovy.service.impls;
 
+import com.moovy.dto.ChangeContactDto;
 import com.moovy.dto.ChangePasswordDto;
 import com.moovy.entity.User;
 import com.moovy.repository.UserRepository;
@@ -31,10 +32,10 @@ public class UserServiceImpl implements UserService {
 
             // Update only non-null fields from the incoming user object
             if (user.getUsername() != null) updatedUser.setUsername(user.getUsername());
-            if (user.getEmail() != null) updatedUser.setEmail(user.getEmail());
-            if (user.getPassword() != null) updatedUser.setPassword(user.getPassword());
             if (user.getFirstName() != null) updatedUser.setFirstName(user.getFirstName());
             if (user.getLastName() != null) updatedUser.setLastName(user.getLastName());
+            if (user.getDob() != null) updatedUser.setDob(user.getDob());
+            if (user.getGender() != null) updatedUser.setGender(user.getGender());
             updatedUser.setUpdatedAt(LocalDate.now());
             return userRepository.save(updatedUser);
         } else {
@@ -59,6 +60,29 @@ public class UserServiceImpl implements UserService {
             user.setUpdatedAt(LocalDate.now());
             return userRepository.save(user);
         } else {
+            throw new RuntimeException("User not found with ID: " + userId);
+        }
+    }
+
+    @Override
+    public User changeContact(ChangeContactDto changeContactDto, int userId) {
+        Optional<User> existingUser = userRepository.findById(userId);
+        if (existingUser.isPresent()) {
+            User user = existingUser.get();
+
+            // check for password matches or not.
+            // doing encryption thing later
+            if (changeContactDto.getPassword() != null) {
+                if (!changeContactDto.getPassword().equals(user.getPassword())) {
+                    throw new RuntimeException("Password Incorrect");
+                }
+            }
+            if (changeContactDto.getEmail() != null) user.setEmail(changeContactDto.getEmail());
+            if(changeContactDto.getMobile() != null) user.setMobile(changeContactDto.getMobile());
+            user.setUpdatedAt(LocalDate.now());
+            return userRepository.save(user);
+        }
+        else {
             throw new RuntimeException("User not found with ID: " + userId);
         }
     }
