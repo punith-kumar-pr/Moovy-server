@@ -11,12 +11,14 @@ Moovy is a movie application similar to IMDb. It allows users to browse, search,
 
 ## Technologies Used
 
-- **Frontend**: ReactJS
-- **Backend**: Java with Spring Boot
+- **Frontend**: Android
+- **Backend**: Java 21 with Spring Boot 3
 - **Database**: MySQL
 
 ## Project Members
 
 - **[Punith Kumar P R](https://github.com/punith-kumar-pr)**
 - **[Shashank S P](https://github.com/Shashankappu)**
+
+## Thank You
 
