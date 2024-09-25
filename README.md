@@ -20,6 +20,10 @@ Moovy is a movie application similar to IMDb. It allows users to browse, search,
 - **[Punith Kumar P R](https://github.com/punith-kumar-pr)**
 - **[Shashank S P](https://github.com/Shashankappu)**
 
+## DB Schema
+
+![db-schema-v1](./screenshots/db-schema-v1.png)
+
 ## Screenshots of Android App
 
 ![screenshot-1](./screenshots/one.jpg)
