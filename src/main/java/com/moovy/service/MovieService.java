@@ -1,12 +1,15 @@
 package com.moovy.service;
 
-import com.moovy.MovieGenreDTO;
+import com.moovy.dto.MovieResponseDto;
 import com.moovy.entity.Movie;
 
 import java.util.List;
 
 public interface MovieService {
-    List<Movie> getAllMovies();
-    List<Movie> getMovieByTitle(String title);
-    List<MovieGenreDTO> getMoviesByGenre(String genreName);
+    List<MovieResponseDto> getAllMovies();
+    List<MovieResponseDto> getTopRatedMovies();
+    List<MovieResponseDto> getMovieByTitle(String title);
+    List<MovieResponseDto> findMoviesByGenreName(String genreName);
+    List<MovieResponseDto> getMoviesByGenres(List<String> genres);
+    List<MovieResponseDto> searchMovies(String query,String genreName);
 }

@@ -5,5 +5,5 @@ import com.moovy.entity.Genre;
 import java.util.List;
 
 public interface GenreService {
-    List<Genre> getAllGenre();
+    List<Genre> getAllGenres();
 }

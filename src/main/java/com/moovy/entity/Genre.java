@@ -1,5 +1,6 @@
 package com.moovy.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -18,8 +19,9 @@ public class Genre {
     @Column(name = "genre_name", nullable = false)
     private String genreName;
 
-//    @ManyToMany( mappedBy = "genres")
-//    private Set<Movie> movies;
+    @OneToMany(mappedBy = "genre")
+    @JsonManagedReference // Parent side
+    private Set<MovieGenre> movieGenres;
 
 }
 
