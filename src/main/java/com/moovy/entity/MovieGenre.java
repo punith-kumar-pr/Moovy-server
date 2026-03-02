@@ -1,13 +1,11 @@
 package com.moovy.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Objects;
-
 @Entity
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "moviegenres")
@@ -18,22 +16,11 @@ public class MovieGenre {
 
     @ManyToOne
     @JoinColumn(name = "movie_id")
+    @JsonBackReference // Child side
     private Movie movie;
 
     @ManyToOne
     @JoinColumn(name = "genre_id")
+    @JsonBackReference // Child side
     private Genre genre;
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        MovieGenre that = (MovieGenre) o;
-        return Objects.equals(id, that.id);
-    }
 }
