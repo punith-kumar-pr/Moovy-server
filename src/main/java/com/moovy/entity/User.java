@@ -50,6 +50,9 @@ public class User {
     @Column(name = "updated_at")
     private LocalDate updatedAt;
 
+    @Column(name = "is_active")
+    private Boolean isActive = true;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<WatchedMovies> watchedMovies;
 
