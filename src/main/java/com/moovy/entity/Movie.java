@@ -1,11 +1,11 @@
 package com.moovy.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -49,18 +49,7 @@ public class Movie {
     private String imageUrl;
 
     @OneToMany(mappedBy = "movie")
+    @JsonManagedReference // Parent side
     private Set<MovieGenre> movieGenres;
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(movieId);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Movie movie = (Movie) o;
-        return Objects.equals(movieId, movie.movieId);
-    }
 }
