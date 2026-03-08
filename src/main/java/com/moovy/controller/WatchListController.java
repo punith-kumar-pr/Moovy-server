@@ -7,6 +7,7 @@ import com.moovy.entity.WatchList;
 import com.moovy.service.WatchListService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +20,7 @@ public class WatchListController {
     private WatchListService watchListService;
 
     @PostMapping
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<WatchListResponseDto> addToWatchList(@RequestBody WatchListRequestDto watchListRequestDto) {
         WatchList watchList = watchListService.addToWatchList(watchListRequestDto);
 
@@ -30,12 +32,14 @@ public class WatchListController {
     }
 
     @GetMapping("/user/{userId}/movies")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<List<MovieResponseDto>> getMoviesInWatchList(@PathVariable int userId) {
         List<MovieResponseDto> movies = watchListService.getMoviesInWatchListByUserId(userId);
         return ResponseEntity.ok(movies);
     }
 
     @DeleteMapping("user/{userId}/remove-movie/{movieId}")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<String> removeMovieFromWatchList(
             @PathVariable int userId,
             @PathVariable int movieId) {

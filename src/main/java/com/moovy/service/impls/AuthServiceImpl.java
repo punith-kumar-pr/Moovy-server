@@ -12,10 +12,17 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import com.moovy.entity.Role;
+import com.moovy.entity.ERole;
+import com.moovy.repository.RoleRepository;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -25,6 +32,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -52,6 +62,10 @@ public class AuthServiceImpl implements AuthService {
         user.setUpdatedAt(LocalDate.now());
         user.setIsActive(true);
 
+        Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+        user.setRoles(Collections.singleton(userRole));
+
         User savedUser = userRepository.save(user);
 
         // Authenticate and generate token
@@ -70,6 +84,12 @@ public class AuthServiceImpl implements AuthService {
         response.setUserId(savedUser.getUserId());
         response.setUsername(savedUser.getUsername());
         response.setEmail(savedUser.getEmail());
+
+        List<String> roles = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+        response.setRoles(roles);
+
         return response;
     }
 
@@ -94,6 +114,12 @@ public class AuthServiceImpl implements AuthService {
         response.setUserId(user.getUserId());
         response.setUsername(user.getUsername());
         response.setEmail(user.getEmail());
+
+        List<String> roles = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+        response.setRoles(roles);
+
         return response;
     }
 }

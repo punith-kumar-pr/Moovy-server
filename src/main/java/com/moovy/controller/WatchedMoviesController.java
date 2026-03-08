@@ -5,6 +5,7 @@ import com.moovy.entity.WatchedMovies;
 import com.moovy.service.WatchedMoviesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +18,7 @@ public class WatchedMoviesController {
     private WatchedMoviesService watchedMoviesService;
 
     @PostMapping
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<WatchedMoviesResponseDto> addToWatchedMovies(@RequestBody WatchedMoviesRequestDto watchedMoviesRequestDto) {
         WatchedMovies watchedMovies = watchedMoviesService.addToWatchedMovies(watchedMoviesRequestDto);
 
@@ -28,12 +30,14 @@ public class WatchedMoviesController {
     }
 
     @GetMapping("/user/{userId}/movies")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<List<MovieResponseDto>> getMoviesInWatchedMovies(@PathVariable int userId) {
         List<MovieResponseDto> movies = watchedMoviesService.getMoviesInWatchedMoviesByUserId(userId);
         return ResponseEntity.ok(movies);
     }
 
     @DeleteMapping("user/{userId}/remove-movie/{movieId}")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<String> removeMovieFromWatchedMovies(
             @PathVariable int userId,
             @PathVariable int movieId) {

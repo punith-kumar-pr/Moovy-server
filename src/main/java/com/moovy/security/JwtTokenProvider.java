@@ -30,6 +30,9 @@ public class JwtTokenProvider {
 
         return Jwts.builder()
                 .subject(username)
+                .claim("roles", authentication.getAuthorities().stream()
+                        .map(org.springframework.security.core.GrantedAuthority::getAuthority)
+                        .toList())
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(key, SignatureAlgorithm.HS512)

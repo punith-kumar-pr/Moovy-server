@@ -13,4 +13,5 @@ public class AuthResponse {
     private int userId;
     private String username;
     private String email;
+    private java.util.List<String> roles;
 }
