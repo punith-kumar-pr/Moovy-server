@@ -1,38 +1,40 @@
-# Moovy
-## Still working on it... 😊
-Moovy is a movie application similar to IMDb. It allows users to browse, search, and filter movies, as well as manage personal watchlists, mark movies as watched, rate them, and write reviews. Users can also apply advanced filters to discover movies by genre, director, and release period.
+# API Documentation
 
-## Features
+## Overview
+This document provides a comprehensive description of the API, including all endpoints, authentication details, role-based access control, request/response examples, and setup instructions.
 
-- View and search for movies.
-- Filter movies by genre and other criteria.
-- Add movies to a watchlist and mark them as watched.
-- Rate and review movies (requires user login).
+## Endpoints
+- `POST /api/v1/login`: Authenticate user and retrieve a token.
+- `GET /api/v1/users`: Retrieve a list of users. Requires admin role.
+- `GET /api/v1/users/{id}`: Retrieve a single user by ID.
+- `PUT /api/v1/users/{id}`: Update user details. Requires admin role.
 
-## Technologies Used
+## Authentication
+- Uses JWT (JSON Web Token) for authentication.
+- Include the token in the `Authorization` header as `Bearer <token>`.
 
-- **Frontend**: Android (Kotlin & Jetpack Compose) [[code repo]](https://github.com/Shashankappu/MovieTime)
-- **Backend**: Java 21 with Spring Boot 3
-- **Database**: MySQL
+## Role-Based Access Control
+- **Admin**: Can access all endpoints.
+- **User**: Can access user-specific endpoints.
 
-## Project Members
+## Request/Response Examples
+### Login Request
+```json
+{
+  "username": "user",
+  "password": "pass"
+}
+```
 
-- **[Punith Kumar P R](https://github.com/punith-kumar-pr)**
-- **[Shashank S P](https://github.com/Shashankappu)**
+### Login Response
+```json
+{
+  "token": "jwt_token_here"
+}
+```
 
-## DB Schema
-
-![db-schema-v1](./screenshots/db-schema-v1.png)
-
-## Screenshots of Android App
-
-![screenshot-0](./screenshots/moovy_app_screenshots.png)
-
-[//]: # (![screenshot-1]&#40;./screenshots/one.jpg&#41;)
-[//]: # (![screenshot-2]&#40;./screenshots/two.jpg&#41;)
-[//]: # (![screenshot-3]&#40;./screenshots/three.jpg&#41;)
-[//]: # (![screenshot-4]&#40;./screenshots/four.jpg&#41;)
-[//]: # (![screenshot-5]&#40;./screenshots/five.jpg&#41;)
-
-## Thank You
-
+## Setup Instructions
+1. Clone the repository.
+2. Install dependencies using `npm install`.
+3. Set up environment variables in a `.env` file.
+4. Run the application using `npm start`.
