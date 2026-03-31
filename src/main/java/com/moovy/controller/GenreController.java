@@ -1,7 +1,6 @@
 package com.moovy.controller;
 
 import com.moovy.dto.MovieResponseDto;
-import com.moovy.entity.Genre;
 import com.moovy.service.GenreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,7 +18,7 @@ public class GenreController {
     private GenreService genreService;
 
     @GetMapping
-    private List<MovieResponseDto.GenreDto> getAllGenre() {
+    public List<MovieResponseDto.GenreDto> getAllGenre() {
         return genreService.getAllGenres().stream()
                 .map(genre -> {
                     MovieResponseDto.GenreDto genreDto = new MovieResponseDto.GenreDto();

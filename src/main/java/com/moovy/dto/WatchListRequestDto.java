@@ -8,7 +8,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class WatchListRequestDto {
-    private int userId;
     private int movieId;
 }
-

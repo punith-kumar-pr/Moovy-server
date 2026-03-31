@@ -52,10 +52,17 @@ public class SecurityConfig {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
+                        // Public endpoints
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api/v1/genres").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/movies/**").permitAll()
+                        // Admin only
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+                        // Authenticated user endpoints
+                        .requestMatchers("/api/v1/me/**").authenticated()
+                        .requestMatchers("/api/v1/watchlist/**").authenticated()
+                        .requestMatchers("/api/v1/watched-movies/**").authenticated()
+                        // All other requests require authentication
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)

@@ -10,5 +10,4 @@ import lombok.NoArgsConstructor;
 public class ChangeContactDto {
     private String email;
     private String mobile;
-    private String password;
 }

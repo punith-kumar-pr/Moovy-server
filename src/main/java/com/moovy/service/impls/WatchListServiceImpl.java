@@ -1,11 +1,11 @@
-// WatchListServiceImpl.java
 package com.moovy.service.impls;
 
 import com.moovy.dto.MovieResponseDto;
-import com.moovy.dto.WatchListRequestDto;
 import com.moovy.entity.Movie;
 import com.moovy.entity.User;
 import com.moovy.entity.WatchList;
+import com.moovy.exception.DuplicateResourceException;
+import com.moovy.exception.ResourceNotFoundException;
 import com.moovy.repository.MovieRepository;
 import com.moovy.repository.UserRepository;
 import com.moovy.repository.WatchListRepository;
@@ -30,18 +30,16 @@ public class WatchListServiceImpl implements WatchListService {
     private MovieRepository movieRepository;
 
     @Override
-    public WatchList addToWatchList(WatchListRequestDto watchListRequestDto) {
-        User user = userRepository.findById(watchListRequestDto.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        Movie movie = movieRepository.findById(watchListRequestDto.getMovieId())
-                .orElseThrow(() -> new RuntimeException("Movie not found"));
+    public WatchList addToWatchList(String username, int movieId) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
+        Movie movie = movieRepository.findById(movieId)
+                .orElseThrow(() -> new ResourceNotFoundException("Movie not found with ID: " + movieId));
 
-        // Check if the movie is already in the user's watch list
         if (watchListRepository.existsByUserAndMovie(user, movie)) {
-            throw new RuntimeException("This movie is already in the watch list");
+            throw new DuplicateResourceException("This movie is already in your watch list");
         }
 
-        // Create new WatchList entry
         WatchList watchList = new WatchList();
         watchList.setUser(user);
         watchList.setMovie(movie);
@@ -50,15 +48,19 @@ public class WatchListServiceImpl implements WatchListService {
     }
 
     @Override
-    public List<MovieResponseDto> getMoviesInWatchListByUserId(int userId) {
-        List<WatchList> watchLists = watchListRepository.findByUser_UserId(userId);
+    public List<MovieResponseDto> getMoviesInWatchList(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
+        List<WatchList> watchLists = watchListRepository.findByUser_UserId(user.getUserId());
         return getMoviesInStructure(watchLists);
     }
 
     @Override
     @Transactional
-    public void removeMovieFromWatchList(int userId, int movieId) {
-        watchListRepository.deleteByUser_UserIdAndMovie_MovieId(userId, movieId);
+    public void removeMovieFromWatchList(String username, int movieId) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
+        watchListRepository.deleteByUser_UserIdAndMovie_MovieId(user.getUserId(), movieId);
     }
 
     private List<MovieResponseDto> getMoviesInStructure(List<WatchList> watchLists) {
@@ -78,7 +80,6 @@ public class WatchListServiceImpl implements WatchListService {
                     dto.setTagline(movie.getTagline());
                     dto.setTrailerUrl(movie.getTrailerUrl());
 
-                    // Map genres
                     dto.setGenres(movie.getMovieGenres().stream()
                             .map(mg -> {
                                 MovieResponseDto.GenreDto genreDto = new MovieResponseDto.GenreDto();

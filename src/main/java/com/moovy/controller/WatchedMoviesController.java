@@ -1,26 +1,30 @@
 package com.moovy.controller;
 
-import com.moovy.dto.*;
+import com.moovy.dto.MovieResponseDto;
+import com.moovy.dto.WatchedMoviesRequestDto;
+import com.moovy.dto.WatchedMoviesResponseDto;
 import com.moovy.entity.WatchedMovies;
 import com.moovy.service.WatchedMoviesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/watchedmovies")
+@RequestMapping("/api/v1/watched-movies")
 public class WatchedMoviesController {
 
     @Autowired
     private WatchedMoviesService watchedMoviesService;
 
     @PostMapping
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public ResponseEntity<WatchedMoviesResponseDto> addToWatchedMovies(@RequestBody WatchedMoviesRequestDto watchedMoviesRequestDto) {
-        WatchedMovies watchedMovies = watchedMoviesService.addToWatchedMovies(watchedMoviesRequestDto);
+    public ResponseEntity<WatchedMoviesResponseDto> addToWatchedMovies(
+            @RequestBody WatchedMoviesRequestDto watchedMoviesRequestDto,
+            Principal principal) {
+        WatchedMovies watchedMovies = watchedMoviesService.addToWatchedMovies(
+                principal.getName(), watchedMoviesRequestDto.getMovieId());
 
         WatchedMoviesResponseDto responseDto = new WatchedMoviesResponseDto();
         responseDto.setId(watchedMovies.getId());
@@ -29,20 +33,17 @@ public class WatchedMoviesController {
         return ResponseEntity.ok(responseDto);
     }
 
-    @GetMapping("/user/{userId}/movies")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public ResponseEntity<List<MovieResponseDto>> getMoviesInWatchedMovies(@PathVariable int userId) {
-        List<MovieResponseDto> movies = watchedMoviesService.getMoviesInWatchedMoviesByUserId(userId);
+    @GetMapping
+    public ResponseEntity<List<MovieResponseDto>> getWatchedMovies(Principal principal) {
+        List<MovieResponseDto> movies = watchedMoviesService.getMoviesInWatchedMovies(principal.getName());
         return ResponseEntity.ok(movies);
     }
 
-    @DeleteMapping("user/{userId}/remove-movie/{movieId}")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public ResponseEntity<String> removeMovieFromWatchedMovies(
-            @PathVariable int userId,
-            @PathVariable int movieId) {
-
-        watchedMoviesService.removeMovieFromWatchedMovies(userId, movieId);
-        return ResponseEntity.ok("Movie removed from watch list successfully.");
+    @DeleteMapping("/{movieId}")
+    public ResponseEntity<String> removeFromWatchedMovies(
+            @PathVariable int movieId,
+            Principal principal) {
+        watchedMoviesService.removeMovieFromWatchedMovies(principal.getName(), movieId);
+        return ResponseEntity.ok("Movie removed from watched list successfully.");
     }
 }
