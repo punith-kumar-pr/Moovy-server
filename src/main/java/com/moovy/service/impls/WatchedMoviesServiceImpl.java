@@ -1,10 +1,11 @@
 package com.moovy.service.impls;
 
 import com.moovy.dto.MovieResponseDto;
-import com.moovy.dto.WatchedMoviesRequestDto;
 import com.moovy.entity.Movie;
 import com.moovy.entity.User;
 import com.moovy.entity.WatchedMovies;
+import com.moovy.exception.DuplicateResourceException;
+import com.moovy.exception.ResourceNotFoundException;
 import com.moovy.repository.MovieRepository;
 import com.moovy.repository.UserRepository;
 import com.moovy.repository.WatchedMoviesRepository;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class WatchedMoviesServiceImpl implements WatchedMoviesService {
+
     @Autowired
     private WatchedMoviesRepository watchedMoviesRepository;
 
@@ -28,18 +30,16 @@ public class WatchedMoviesServiceImpl implements WatchedMoviesService {
     private MovieRepository movieRepository;
 
     @Override
-    public WatchedMovies addToWatchedMovies(WatchedMoviesRequestDto watchedMoviesRequestDto) {
-        User user = userRepository.findById(watchedMoviesRequestDto.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        Movie movie = movieRepository.findById(watchedMoviesRequestDto.getMovieId())
-                .orElseThrow(() -> new RuntimeException("Movie not found"));
+    public WatchedMovies addToWatchedMovies(String username, int movieId) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
+        Movie movie = movieRepository.findById(movieId)
+                .orElseThrow(() -> new ResourceNotFoundException("Movie not found with ID: " + movieId));
 
-        // Check if the movie is already in the user's watch list
         if (watchedMoviesRepository.existsByUserAndMovie(user, movie)) {
-            throw new RuntimeException("This movie is already in the watch list");
+            throw new DuplicateResourceException("This movie is already in your watched list");
         }
 
-        // Create new WatchedMovies entry
         WatchedMovies watchedMovies = new WatchedMovies();
         watchedMovies.setUser(user);
         watchedMovies.setMovie(movie);
@@ -48,19 +48,23 @@ public class WatchedMoviesServiceImpl implements WatchedMoviesService {
     }
 
     @Override
-    public List<MovieResponseDto> getMoviesInWatchedMoviesByUserId(int userId) {
-        List<WatchedMovies> watchedMoviess = watchedMoviesRepository.findByUser_UserId(userId);
-        return getMoviesInStructure(watchedMoviess);
+    public List<MovieResponseDto> getMoviesInWatchedMovies(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
+        List<WatchedMovies> watchedMovies = watchedMoviesRepository.findByUser_UserId(user.getUserId());
+        return getMoviesInStructure(watchedMovies);
     }
 
     @Override
     @Transactional
-    public void removeMovieFromWatchedMovies(int userId, int movieId) {
-        watchedMoviesRepository.deleteByUser_UserIdAndMovie_MovieId(userId, movieId);
+    public void removeMovieFromWatchedMovies(String username, int movieId) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
+        watchedMoviesRepository.deleteByUser_UserIdAndMovie_MovieId(user.getUserId(), movieId);
     }
 
-    private List<MovieResponseDto> getMoviesInStructure(List<WatchedMovies> watchedMoviess) {
-        return watchedMoviess.stream()
+    private List<MovieResponseDto> getMoviesInStructure(List<WatchedMovies> watchedMoviesList) {
+        return watchedMoviesList.stream()
                 .map(watchedMovies -> {
                     Movie movie = watchedMovies.getMovie();
                     MovieResponseDto dto = new MovieResponseDto();
@@ -76,7 +80,6 @@ public class WatchedMoviesServiceImpl implements WatchedMoviesService {
                     dto.setTagline(movie.getTagline());
                     dto.setTrailerUrl(movie.getTrailerUrl());
 
-                    // Map genres
                     dto.setGenres(movie.getMovieGenres().stream()
                             .map(mg -> {
                                 MovieResponseDto.GenreDto genreDto = new MovieResponseDto.GenreDto();

@@ -2,44 +2,49 @@ package com.moovy.controller;
 
 import com.moovy.dto.ChangeContactDto;
 import com.moovy.dto.ChangePasswordDto;
-import com.moovy.entity.User;
+import com.moovy.dto.UpdateProfileDto;
+import com.moovy.dto.UserProfileDto;
 import com.moovy.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+
 @RestController
-@RequestMapping("/api/v1/user")
+@RequestMapping("/api/v1/me")
 public class UserController {
 
     @Autowired
     private UserService userService;
 
-    @PostMapping("/create")
-    @PreAuthorize("hasRole('ADMIN')")
-    private User createUser (@RequestBody User user) {
-         return userService.createUser(user);
+    @GetMapping("/profile")
+    public ResponseEntity<UserProfileDto> getProfile(Principal principal) {
+        UserProfileDto profile = userService.getProfile(principal.getName());
+        return ResponseEntity.ok(profile);
     }
 
-    @PutMapping("/update/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    private User updateUser (@RequestBody User user, @PathVariable int id) {
-        return userService.updateUser(user, id);
+    @PutMapping("/profile")
+    public ResponseEntity<UserProfileDto> updateProfile(
+            @RequestBody UpdateProfileDto updateProfileDto,
+            Principal principal) {
+        UserProfileDto profile = userService.updateProfile(principal.getName(), updateProfileDto);
+        return ResponseEntity.ok(profile);
     }
 
-    @PutMapping("change-password/{id}")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    private User changePassword(
+    @PutMapping("/change-password")
+    public ResponseEntity<String> changePassword(
             @RequestBody ChangePasswordDto changePasswordDto,
-            @PathVariable int id) {
-        return userService.changePassword(changePasswordDto, id);
+            Principal principal) {
+        userService.changePassword(principal.getName(), changePasswordDto);
+        return ResponseEntity.ok("Password changed successfully");
     }
 
-    @PutMapping("change-contact/{id}")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    private User changeContact(
+    @PutMapping("/change-contact")
+    public ResponseEntity<String> changeContact(
             @RequestBody ChangeContactDto changeContactDto,
-            @PathVariable int id) {
-        return userService.changeContact(changeContactDto, id);
+            Principal principal) {
+        userService.changeContact(principal.getName(), changeContactDto);
+        return ResponseEntity.ok("Contact information updated successfully");
     }
 }

@@ -97,7 +97,8 @@ After login/registration, you'll receive a JWT token:
   "type": "Bearer",
   "userId": 1,
   "username": "john_doe",
-  "email": "john@example.com"
+  "email": "john@example.com",
+  "roles": ["ROLE_USER"]
 }
 ```
 
@@ -109,6 +110,13 @@ Include the token in all authenticated requests:
 Authorization: Bearer <your_jwt_token>
 ```
 
+### Security Design
+
+All user-specific endpoints derive the user identity from the JWT token — the server **never** trusts a client-supplied `userId`. This means:
+- You cannot access or modify another user's data
+- Watchlists, watched movies, profile changes are all scoped to the authenticated user
+- Only admin endpoints accept `userId` as a path parameter
+
 ---
 
 ## 📚 API Documentation
@@ -118,6 +126,33 @@ Authorization: Bearer <your_jwt_token>
 http://localhost:8080/api/v1
 ```
 
+### API Endpoint Summary
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `POST` | `/auth/register` | Public | Register new user |
+| `POST` | `/auth/login` | Public | Login, get JWT token |
+| `GET` | `/me/profile` | 🔒 Authenticated | Get own profile |
+| `PUT` | `/me/profile` | 🔒 Authenticated | Update own profile |
+| `PUT` | `/me/change-password` | 🔒 Authenticated | Change own password |
+| `PUT` | `/me/change-contact` | 🔒 Authenticated | Change own email/mobile |
+| `GET` | `/movies` | Public | List all movies |
+| `GET` | `/movies/top-rated` | Public | Top rated movies |
+| `GET` | `/movies/{title}` | Public | Search by title |
+| `GET` | `/movies/by-genre` | Public | Filter by genre |
+| `GET` | `/movies/by-genres` | Public | Filter by multiple genres |
+| `GET` | `/movies/search` | Public | Search movies |
+| `GET` | `/genres` | Public | List all genres |
+| `POST` | `/watchlist` | 🔒 Authenticated | Add movie to watchlist |
+| `GET` | `/watchlist` | 🔒 Authenticated | Get own watchlist |
+| `DELETE` | `/watchlist/{movieId}` | 🔒 Authenticated | Remove from watchlist |
+| `POST` | `/watched-movies` | 🔒 Authenticated | Mark movie as watched |
+| `GET` | `/watched-movies` | 🔒 Authenticated | Get own watched movies |
+| `DELETE` | `/watched-movies/{movieId}` | 🔒 Authenticated | Remove from watched |
+| `GET` | `/admin/users` | 🔒 Admin | List all users |
+| `PUT` | `/admin/users/{userId}/roles` | 🔒 Admin | Assign roles |
+| `DELETE` | `/admin/users/{userId}` | 🔒 Admin | Deactivate user |
+
 ---
 
 ## 🔑 Authentication Endpoints
@@ -126,7 +161,7 @@ http://localhost:8080/api/v1
 
 **Endpoint**: `POST /auth/register`  
 **Access**: Public  
-**Description**: Register a new user account
+**Description**: Register a new user account. Returns a JWT token on success.
 
 **Request Body**:
 ```json
@@ -146,9 +181,13 @@ http://localhost:8080/api/v1
   "type": "Bearer",
   "userId": 1,
   "username": "john_doe",
-  "email": "john@example.com"
+  "email": "john@example.com",
+  "roles": ["ROLE_USER"]
 }
 ```
+
+**Error Responses**:
+- `400` — Username already taken / Email already in use
 
 **Example cURL**:
 ```bash
@@ -169,7 +208,7 @@ curl -X POST http://localhost:8080/api/v1/auth/register \
 
 **Endpoint**: `POST /auth/login`  
 **Access**: Public  
-**Description**: Login with existing credentials
+**Description**: Login with existing credentials. Returns a JWT token on success.
 
 **Request Body**:
 ```json
@@ -186,9 +225,13 @@ curl -X POST http://localhost:8080/api/v1/auth/register \
   "type": "Bearer",
   "userId": 1,
   "username": "john_doe",
-  "email": "john@example.com"
+  "email": "john@example.com",
+  "roles": ["ROLE_USER"]
 }
 ```
+
+**Error Responses**:
+- `401` — Invalid username or password
 
 **Example cURL**:
 ```bash
@@ -202,60 +245,53 @@ curl -X POST http://localhost:8080/api/v1/auth/login \
 
 ---
 
-## 👤 User Management Endpoints
+## 👤 User Profile Endpoints (`/me`)
 
-### 3. Create User (Admin Only)
+> All `/me` endpoints are scoped to the **authenticated user**. The user identity is extracted from the JWT token — no `userId` is required in the URL or request body.
 
-**Endpoint**: `POST /user/create`  
-**Access**: ROLE_ADMIN  
-**Description**: Create a new user account (admin only)
+### 3. Get My Profile
 
-**Request Body**:
-```json
-{
-  "username": "new_user",
-  "email": "newuser@example.com",
-  "password": "SecurePassword123",
-  "firstName": "New",
-  "lastName": "User"
-}
-```
+**Endpoint**: `GET /me/profile`  
+**Access**: 🔒 Authenticated  
+**Description**: Retrieve the authenticated user's profile
 
 **Response** (200 OK):
 ```json
 {
-  "userId": 2,
-  "username": "new_user",
-  "email": "newuser@example.com",
-  "firstName": "New",
-  "lastName": "User",
+  "userId": 1,
+  "username": "john_doe",
+  "email": "john@example.com",
+  "firstName": "John",
+  "lastName": "Doe",
+  "gender": "MALE",
+  "mobile": "+919876543210",
+  "dob": "1995-06-15",
   "createdAt": "2024-03-10",
-  "updatedAt": "2024-03-10"
+  "roles": ["ROLE_USER"]
 }
 ```
 
 **Example cURL**:
 ```bash
-curl -X POST http://localhost:8080/api/v1/user/create \
-  -H "Authorization: Bearer <admin_token>" \
-  -H "Content-Type: application/json" \
-  -d '{...}'
+curl -X GET http://localhost:8080/api/v1/me/profile \
+  -H "Authorization: Bearer <your_token>"
 ```
 
 ---
 
-### 4. Update User (Admin Only)
+### 4. Update My Profile
 
-**Endpoint**: `PUT /user/update/{userId}`  
-**Access**: ROLE_ADMIN  
-**Description**: Update user information
+**Endpoint**: `PUT /me/profile`  
+**Access**: 🔒 Authenticated  
+**Description**: Update the authenticated user's profile (partial updates supported)
 
-**Request Body**:
+**Request Body** (all fields optional):
 ```json
 {
-  "firstName": "Updated",
-  "lastName": "Name",
-  "mobile": "+919876543210"
+  "firstName": "John",
+  "lastName": "Doe",
+  "gender": "MALE",
+  "dob": "1995-06-15"
 }
 ```
 
@@ -265,30 +301,38 @@ curl -X POST http://localhost:8080/api/v1/user/create \
   "userId": 1,
   "username": "john_doe",
   "email": "john@example.com",
-  "firstName": "Updated",
-  "lastName": "Name",
-  "updatedAt": "2024-03-10"
+  "firstName": "John",
+  "lastName": "Doe",
+  "gender": "MALE",
+  "mobile": "+919876543210",
+  "dob": "1995-06-15",
+  "createdAt": "2024-03-10",
+  "roles": ["ROLE_USER"]
 }
 ```
 
+**Error Responses**:
+- `400` — Invalid gender value (allowed: MALE, FEMALE)
+
 **Example cURL**:
 ```bash
-curl -X PUT http://localhost:8080/api/v1/user/update/1 \
-  -H "Authorization: Bearer <admin_token>" \
+curl -X PUT http://localhost:8080/api/v1/me/profile \
+  -H "Authorization: Bearer <your_token>" \
   -H "Content-Type: application/json" \
   -d '{
     "firstName": "Updated",
-    "lastName": "Name"
+    "lastName": "Name",
+    "gender": "MALE"
   }'
 ```
 
 ---
 
-### 5. Change Password
+### 5. Change My Password
 
-**Endpoint**: `PUT /user/change-password/{userId}`  
-**Access**: ROLE_USER, ROLE_ADMIN  
-**Description**: Change user password
+**Endpoint**: `PUT /me/change-password`  
+**Access**: 🔒 Authenticated  
+**Description**: Change the authenticated user's password. Requires current password for verification.
 
 **Request Body**:
 ```json
@@ -300,16 +344,15 @@ curl -X PUT http://localhost:8080/api/v1/user/update/1 \
 
 **Response** (200 OK):
 ```json
-{
-  "userId": 1,
-  "username": "john_doe",
-  "email": "john@example.com"
-}
+"Password changed successfully"
 ```
+
+**Error Responses**:
+- `400` — Current password is incorrect
 
 **Example cURL**:
 ```bash
-curl -X PUT http://localhost:8080/api/v1/user/change-password/1 \
+curl -X PUT http://localhost:8080/api/v1/me/change-password \
   -H "Authorization: Bearer <your_token>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -320,40 +363,36 @@ curl -X PUT http://localhost:8080/api/v1/user/change-password/1 \
 
 ---
 
-### 6. Change Contact Information
+### 6. Change My Contact Information
 
-**Endpoint**: `PUT /user/change-contact/{userId}`  
-**Access**: ROLE_USER, ROLE_ADMIN  
-**Description**: Update email and/or mobile number
+**Endpoint**: `PUT /me/change-contact`  
+**Access**: 🔒 Authenticated  
+**Description**: Update email and/or mobile number for the authenticated user
 
-**Request Body**:
+**Request Body** (all fields optional):
 ```json
 {
-  "email": "newemail@example.com",
-  "mobile": "+919876543210",
-  "password": "CurrentPassword123"
-}
-```
-
-**Response** (200 OK):
-```json
-{
-  "userId": 1,
-  "username": "john_doe",
   "email": "newemail@example.com",
   "mobile": "+919876543210"
 }
 ```
 
+**Response** (200 OK):
+```json
+"Contact information updated successfully"
+```
+
+**Error Responses**:
+- `400` — Email is already in use by another account
+
 **Example cURL**:
 ```bash
-curl -X PUT http://localhost:8080/api/v1/user/change-contact/1 \
+curl -X PUT http://localhost:8080/api/v1/me/change-contact \
   -H "Authorization: Bearer <your_token>" \
   -H "Content-Type: application/json" \
   -d '{
     "email": "newemail@example.com",
-    "mobile": "+919876543210",
-    "password": "CurrentPassword123"
+    "mobile": "+919876543210"
   }'
 ```
 
@@ -376,16 +415,15 @@ curl -X PUT http://localhost:8080/api/v1/user/change-contact/1 \
     "summary": "A skilled thief who steals corporate secrets...",
     "voteAverage": 8.8,
     "voteCount": 15000,
+    "adult": false,
     "releaseDate": "2010-07-16",
+    "runtime": 148,
+    "tagline": "Your mind is the scene of the crime.",
+    "imageUrl": "https://...",
+    "trailerUrl": "https://...",
     "genres": [
-      {
-        "id": 1,
-        "genreName": "Action"
-      },
-      {
-        "id": 2,
-        "genreName": "Sci-Fi"
-      }
+      { "id": 1, "genreName": "Action" },
+      { "id": 2, "genreName": "Sci-Fi" }
     ]
   }
 ]
@@ -402,19 +440,7 @@ curl -X GET http://localhost:8080/api/v1/movies
 
 **Endpoint**: `GET /movies/top-rated`  
 **Access**: Public  
-**Description**: Get movies sorted by ratings
-
-**Response** (200 OK):
-```json
-[
-  {
-    "id": 1,
-    "title": "Inception",
-    "voteAverage": 8.8,
-    "voteCount": 15000
-  }
-]
-```
+**Description**: Get movies sorted by vote average and vote count
 
 **Example cURL**:
 ```bash
@@ -432,18 +458,6 @@ curl -X GET http://localhost:8080/api/v1/movies/top-rated
 **Path Parameters**:
 - `title` (String): Movie title to search
 
-**Response** (200 OK):
-```json
-[
-  {
-    "id": 1,
-    "title": "Inception",
-    "summary": "...",
-    "voteAverage": 8.8
-  }
-]
-```
-
 **Example cURL**:
 ```bash
 curl -X GET http://localhost:8080/api/v1/movies/Inception
@@ -455,21 +469,10 @@ curl -X GET http://localhost:8080/api/v1/movies/Inception
 
 **Endpoint**: `GET /movies/by-genre?genre={genreName}`  
 **Access**: Public  
-**Description**: Filter movies by genre
+**Description**: Filter movies by a single genre
 
 **Query Parameters**:
 - `genre` (String): Genre name
-
-**Response** (200 OK):
-```json
-[
-  {
-    "id": 1,
-    "title": "Inception",
-    "genres": [{"id": 1, "genreName": "Action"}]
-  }
-]
-```
 
 **Example cURL**:
 ```bash
@@ -482,22 +485,11 @@ curl -X GET "http://localhost:8080/api/v1/movies/by-genre?genre=Action"
 
 **Endpoint**: `GET /movies/search?query={searchText}&genreName={genreName}`  
 **Access**: Public  
-**Description**: Advanced search with optional genre filter
+**Description**: Advanced search across title, tagline, and summary with optional genre filter
 
 **Query Parameters**:
 - `query` (String, required): Search text
 - `genreName` (String, optional): Genre to filter
-
-**Response** (200 OK):
-```json
-[
-  {
-    "id": 1,
-    "title": "Inception",
-    "summary": "..."
-  }
-]
-```
 
 **Example cURL**:
 ```bash
@@ -514,17 +506,6 @@ curl -X GET "http://localhost:8080/api/v1/movies/search?query=dream&genreName=Sc
 
 **Query Parameters**:
 - `genres` (List of String): Multiple genres to filter
-
-**Response** (200 OK):
-```json
-[
-  {
-    "id": 1,
-    "title": "Inception",
-    "genres": [...]
-  }
-]
-```
 
 **Example cURL**:
 ```bash
@@ -544,18 +525,9 @@ curl -X GET "http://localhost:8080/api/v1/movies/by-genres?genres=Action&genres=
 **Response** (200 OK):
 ```json
 [
-  {
-    "id": 1,
-    "genreName": "Action"
-  },
-  {
-    "id": 2,
-    "genreName": "Comedy"
-  },
-  {
-    "id": 3,
-    "genreName": "Drama"
-  }
+  { "id": 1, "genreName": "Action" },
+  { "id": 2, "genreName": "Comedy" },
+  { "id": 3, "genreName": "Drama" }
 ]
 ```
 
@@ -568,16 +540,17 @@ curl -X GET http://localhost:8080/api/v1/genres
 
 ## 📋 Watchlist Endpoints
 
+> All watchlist endpoints are scoped to the **authenticated user**. The user identity is extracted from the JWT token — no `userId` is required.
+
 ### 14. Add Movie to Watchlist
 
 **Endpoint**: `POST /watchlist`  
-**Access**: ROLE_USER, ROLE_ADMIN  
-**Description**: Add a movie to user's watchlist
+**Access**: 🔒 Authenticated  
+**Description**: Add a movie to the authenticated user's watchlist
 
 **Request Body**:
 ```json
 {
-  "userId": 1,
   "movieId": 5
 }
 ```
@@ -591,27 +564,25 @@ curl -X GET http://localhost:8080/api/v1/genres
 }
 ```
 
+**Error Responses**:
+- `404` — Movie not found
+- `409` — Movie is already in your watch list
+
 **Example cURL**:
 ```bash
 curl -X POST http://localhost:8080/api/v1/watchlist \
   -H "Authorization: Bearer <your_token>" \
   -H "Content-Type: application/json" \
-  -d '{
-    "userId": 1,
-    "movieId": 5
-  }'
+  -d '{ "movieId": 5 }'
 ```
 
 ---
 
-### 15. Get Watchlist Movies
+### 15. Get My Watchlist
 
-**Endpoint**: `GET /watchlist/user/{userId}/movies`  
-**Access**: ROLE_USER, ROLE_ADMIN  
-**Description**: Retrieve all movies in user's watchlist
-
-**Path Parameters**:
-- `userId` (Integer): User ID
+**Endpoint**: `GET /watchlist`  
+**Access**: 🔒 Authenticated  
+**Description**: Retrieve all movies in the authenticated user's watchlist
 
 **Response** (200 OK):
 ```json
@@ -628,7 +599,7 @@ curl -X POST http://localhost:8080/api/v1/watchlist \
 
 **Example cURL**:
 ```bash
-curl -X GET http://localhost:8080/api/v1/watchlist/user/1/movies \
+curl -X GET http://localhost:8080/api/v1/watchlist \
   -H "Authorization: Bearer <your_token>"
 ```
 
@@ -636,13 +607,12 @@ curl -X GET http://localhost:8080/api/v1/watchlist/user/1/movies \
 
 ### 16. Remove Movie from Watchlist
 
-**Endpoint**: `DELETE /watchlist/user/{userId}/remove-movie/{movieId}`  
-**Access**: ROLE_USER, ROLE_ADMIN  
-**Description**: Remove a movie from watchlist
+**Endpoint**: `DELETE /watchlist/{movieId}`  
+**Access**: 🔒 Authenticated  
+**Description**: Remove a movie from the authenticated user's watchlist
 
 **Path Parameters**:
-- `userId` (Integer): User ID
-- `movieId` (Integer): Movie ID
+- `movieId` (Integer): Movie ID to remove
 
 **Response** (200 OK):
 ```json
@@ -651,7 +621,7 @@ curl -X GET http://localhost:8080/api/v1/watchlist/user/1/movies \
 
 **Example cURL**:
 ```bash
-curl -X DELETE http://localhost:8080/api/v1/watchlist/user/1/remove-movie/5 \
+curl -X DELETE http://localhost:8080/api/v1/watchlist/5 \
   -H "Authorization: Bearer <your_token>"
 ```
 
@@ -659,16 +629,17 @@ curl -X DELETE http://localhost:8080/api/v1/watchlist/user/1/remove-movie/5 \
 
 ## 👁️ Watched Movies Endpoints
 
+> All watched movies endpoints are scoped to the **authenticated user**. The user identity is extracted from the JWT token — no `userId` is required.
+
 ### 17. Mark Movie as Watched
 
-**Endpoint**: `POST /watchedmovies`  
-**Access**: ROLE_USER, ROLE_ADMIN  
-**Description**: Mark a movie as watched
+**Endpoint**: `POST /watched-movies`  
+**Access**: 🔒 Authenticated  
+**Description**: Mark a movie as watched for the authenticated user
 
 **Request Body**:
 ```json
 {
-  "userId": 1,
   "movieId": 5
 }
 ```
@@ -682,27 +653,25 @@ curl -X DELETE http://localhost:8080/api/v1/watchlist/user/1/remove-movie/5 \
 }
 ```
 
+**Error Responses**:
+- `404` — Movie not found
+- `409` — Movie is already in your watched list
+
 **Example cURL**:
 ```bash
-curl -X POST http://localhost:8080/api/v1/watchedmovies \
+curl -X POST http://localhost:8080/api/v1/watched-movies \
   -H "Authorization: Bearer <your_token>" \
   -H "Content-Type: application/json" \
-  -d '{
-    "userId": 1,
-    "movieId": 5
-  }'
+  -d '{ "movieId": 5 }'
 ```
 
 ---
 
-### 18. Get Watched Movies
+### 18. Get My Watched Movies
 
-**Endpoint**: `GET /watchedmovies/user/{userId}/movies`  
-**Access**: ROLE_USER, ROLE_ADMIN  
-**Description**: Retrieve all movies marked as watched
-
-**Path Parameters**:
-- `userId` (Integer): User ID
+**Endpoint**: `GET /watched-movies`  
+**Access**: 🔒 Authenticated  
+**Description**: Retrieve all movies marked as watched by the authenticated user
 
 **Response** (200 OK):
 ```json
@@ -711,14 +680,15 @@ curl -X POST http://localhost:8080/api/v1/watchedmovies \
     "id": 5,
     "title": "The Matrix",
     "summary": "...",
-    "voteAverage": 8.7
+    "voteAverage": 8.7,
+    "genres": [...]
   }
 ]
 ```
 
 **Example cURL**:
 ```bash
-curl -X GET http://localhost:8080/api/v1/watchedmovies/user/1/movies \
+curl -X GET http://localhost:8080/api/v1/watched-movies \
   -H "Authorization: Bearer <your_token>"
 ```
 
@@ -726,22 +696,21 @@ curl -X GET http://localhost:8080/api/v1/watchedmovies/user/1/movies \
 
 ### 19. Remove Movie from Watched
 
-**Endpoint**: `DELETE /watchedmovies/user/{userId}/remove-movie/{movieId}`  
-**Access**: ROLE_USER, ROLE_ADMIN  
-**Description**: Remove a movie from watched list
+**Endpoint**: `DELETE /watched-movies/{movieId}`  
+**Access**: 🔒 Authenticated  
+**Description**: Remove a movie from the authenticated user's watched list
 
 **Path Parameters**:
-- `userId` (Integer): User ID
-- `movieId` (Integer): Movie ID
+- `movieId` (Integer): Movie ID to remove
 
 **Response** (200 OK):
 ```json
-"Movie removed from watch list successfully."
+"Movie removed from watched list successfully."
 ```
 
 **Example cURL**:
 ```bash
-curl -X DELETE http://localhost:8080/api/v1/watchedmovies/user/1/remove-movie/5 \
+curl -X DELETE http://localhost:8080/api/v1/watched-movies/5 \
   -H "Authorization: Bearer <your_token>"
 ```
 
@@ -749,11 +718,13 @@ curl -X DELETE http://localhost:8080/api/v1/watchedmovies/user/1/remove-movie/5 
 
 ## 👨‍💼 Admin Endpoints
 
+> All admin endpoints require `ROLE_ADMIN`. These are the only endpoints that accept `userId` as a path parameter, since admins need to manage other users.
+
 ### 20. Get All Users
 
 **Endpoint**: `GET /admin/users`  
-**Access**: ROLE_ADMIN  
-**Description**: Retrieve list of all users (admin only)
+**Access**: 🔒 ROLE_ADMIN  
+**Description**: Retrieve list of all users with their profiles (passwords are never exposed)
 
 **Response** (200 OK):
 ```json
@@ -764,8 +735,11 @@ curl -X DELETE http://localhost:8080/api/v1/watchedmovies/user/1/remove-movie/5 
     "email": "john@example.com",
     "firstName": "John",
     "lastName": "Doe",
-    "isActive": true,
-    "createdAt": "2024-03-10"
+    "gender": "MALE",
+    "mobile": "+919876543210",
+    "dob": "1995-06-15",
+    "createdAt": "2024-03-10",
+    "roles": ["ROLE_USER"]
   }
 ]
 ```
@@ -781,11 +755,11 @@ curl -X GET http://localhost:8080/api/v1/admin/users \
 ### 21. Assign Roles to User
 
 **Endpoint**: `PUT /admin/users/{userId}/roles`  
-**Access**: ROLE_ADMIN  
+**Access**: 🔒 ROLE_ADMIN  
 **Description**: Assign or update user roles
 
 **Path Parameters**:
-- `userId` (Integer): User ID
+- `userId` (Integer): Target user ID
 
 **Request Body**:
 ```json
@@ -797,6 +771,14 @@ curl -X GET http://localhost:8080/api/v1/admin/users \
 "Roles updated successfully!"
 ```
 
+**Available Roles**:
+- `user` → ROLE_USER
+- `admin` → ROLE_ADMIN
+- `mod` → ROLE_MODERATOR
+
+**Error Responses**:
+- `404` — User not found
+
 **Example cURL**:
 ```bash
 curl -X PUT http://localhost:8080/api/v1/admin/users/2/roles \
@@ -805,26 +787,24 @@ curl -X PUT http://localhost:8080/api/v1/admin/users/2/roles \
   -d '["user", "admin"]'
 ```
 
-**Available Roles**:
-- `user` - ROLE_USER
-- `admin` - ROLE_ADMIN
-- `mod` - ROLE_MODERATOR
-
 ---
 
 ### 22. Deactivate User
 
 **Endpoint**: `DELETE /admin/users/{userId}`  
-**Access**: ROLE_ADMIN  
-**Description**: Deactivate a user account
+**Access**: 🔒 ROLE_ADMIN  
+**Description**: Deactivate a user account (soft delete)
 
 **Path Parameters**:
-- `userId` (Integer): User ID
+- `userId` (Integer): Target user ID
 
 **Response** (200 OK):
 ```json
 "User deactivated successfully!"
 ```
+
+**Error Responses**:
+- `404` — User not found
 
 **Example cURL**:
 ```bash
@@ -983,6 +963,6 @@ For issues, suggestions, or contributions, please visit our [GitHub repository](
 
 ---
 
-**Last Updated**: March 10, 2026  
-**API Version**: 1.0  
+**Last Updated**: March 31, 2026  
+**API Version**: 2.0 (Authentication Refactor)  
 **Backend Version**: 0.0.1

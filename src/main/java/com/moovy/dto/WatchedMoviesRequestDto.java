@@ -8,6 +8,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class WatchedMoviesRequestDto {
-    private int userId;
     private int movieId;
 }
