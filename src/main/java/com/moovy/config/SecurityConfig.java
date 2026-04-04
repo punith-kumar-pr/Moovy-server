@@ -56,12 +56,16 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api/v1/genres").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/movies/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/ratings/movie/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/reviews/movie/**").permitAll()
                         // Admin only
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         // Authenticated user endpoints
                         .requestMatchers("/api/v1/me/**").authenticated()
                         .requestMatchers("/api/v1/watchlist/**").authenticated()
                         .requestMatchers("/api/v1/watched-movies/**").authenticated()
+                        .requestMatchers("/api/v1/ratings/**").authenticated()
+                        .requestMatchers("/api/v1/reviews/**").authenticated()
                         // All other requests require authentication
                         .anyRequest().authenticated()
                 )

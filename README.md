@@ -143,6 +143,16 @@ http://localhost:8080/api/v1
 | `GET` | `/movies/by-genres` | Public | Filter by multiple genres |
 | `GET` | `/movies/search` | Public | Search movies |
 | `GET` | `/genres` | Public | List all genres |
+| `POST` | `/ratings` | 🔒 Authenticated | Rate a movie |
+| `PUT` | `/ratings` | 🔒 Authenticated | Update movie rating |
+| `GET` | `/ratings` | 🔒 Authenticated | Get own ratings |
+| `DELETE` | `/ratings/{movieId}` | 🔒 Authenticated | Delete own rating |
+| `GET` | `/ratings/movie/{movieId}` | Public | Get ratings for a movie |
+| `POST` | `/reviews` | 🔒 Authenticated | Review a movie |
+| `PUT` | `/reviews` | 🔒 Authenticated | Update movie review |
+| `GET` | `/reviews` | 🔒 Authenticated | Get own reviews |
+| `DELETE` | `/reviews/{movieId}` | 🔒 Authenticated | Delete own review |
+| `GET` | `/reviews/movie/{movieId}` | Public | Get reviews for a movie |
 | `POST` | `/watchlist` | 🔒 Authenticated | Add movie to watchlist |
 | `GET` | `/watchlist` | 🔒 Authenticated | Get own watchlist |
 | `DELETE` | `/watchlist/{movieId}` | 🔒 Authenticated | Remove from watchlist |
@@ -712,6 +722,295 @@ curl -X GET http://localhost:8080/api/v1/watched-movies \
 ```bash
 curl -X DELETE http://localhost:8080/api/v1/watched-movies/5 \
   -H "Authorization: Bearer <your_token>"
+```
+
+---
+
+## ⭐ Rating Endpoints
+
+> Ratings are restricted to values between 1 and 10. You can only have one rating per movie. All modifications are user-scoped via JWT.
+
+### 20. Rate a Movie
+
+**Endpoint**: `POST /ratings`  
+**Access**: 🔒 Authenticated  
+**Description**: Add a new rating for a movie
+
+**Request Body**:
+```json
+{
+  "movieId": 1,
+  "rating": 8
+}
+```
+
+**Response** (200 OK):
+```json
+{
+  "ratingId": 101,
+  "movieId": 1,
+  "movieTitle": "Inception",
+  "rating": 8,
+  "ratingDate": "2024-03-10"
+}
+```
+
+**Error Responses**:
+- `400` — Rating must be between 1 and 10
+- `409` — You have already rated this movie. Use PUT to update your rating.
+
+**Example cURL**:
+```bash
+curl -X POST http://localhost:8080/api/v1/ratings \
+  -H "Authorization: Bearer <your_token>" \
+  -H "Content-Type: application/json" \
+  -d '{ "movieId": 1, "rating": 8 }'
+```
+
+---
+
+### 21. Update Movie Rating
+
+**Endpoint**: `PUT /ratings`  
+**Access**: 🔒 Authenticated  
+**Description**: Update an existing rating
+
+**Request Body**:
+```json
+{
+  "movieId": 1,
+  "rating": 9
+}
+```
+
+**Response** (200 OK):
+```json
+{
+  "ratingId": 101,
+  "movieId": 1,
+  "movieTitle": "Inception",
+  "rating": 9,
+  "ratingDate": "2024-03-10"
+}
+```
+
+**Example cURL**:
+```bash
+curl -X PUT http://localhost:8080/api/v1/ratings \
+  -H "Authorization: Bearer <your_token>" \
+  -H "Content-Type: application/json" \
+  -d '{ "movieId": 1, "rating": 9 }'
+```
+
+---
+
+### 22. Get My Ratings
+
+**Endpoint**: `GET /ratings`  
+**Access**: 🔒 Authenticated  
+**Description**: Retrieve all your rated movies
+
+**Response** (200 OK):
+```json
+[
+  {
+    "ratingId": 101,
+    "movieId": 1,
+    "movieTitle": "Inception",
+    "rating": 9,
+    "ratingDate": "2024-03-10"
+  }
+]
+```
+
+**Example cURL**:
+```bash
+curl -X GET http://localhost:8080/api/v1/ratings \
+  -H "Authorization: Bearer <your_token>"
+```
+
+---
+
+### 23. Delete Rating
+
+**Endpoint**: `DELETE /ratings/{movieId}`  
+**Access**: 🔒 Authenticated  
+**Description**: Remove your rating for a movie
+
+**Path Parameters**:
+- `movieId` (Integer): Movie ID to un-rate
+
+**Response** (200 OK):
+```json
+"Rating deleted successfully."
+```
+
+**Example cURL**:
+```bash
+curl -X DELETE http://localhost:8080/api/v1/ratings/1 \
+  -H "Authorization: Bearer <your_token>"
+```
+
+---
+
+### 24. Get Ratings for Movie
+
+**Endpoint**: `GET /ratings/movie/{movieId}`  
+**Access**: Public  
+**Description**: Get all user ratings for a specific movie
+
+**Path Parameters**:
+- `movieId` (Integer): Movie ID
+
+**Example cURL**:
+```bash
+curl -X GET http://localhost:8080/api/v1/ratings/movie/1
+```
+
+---
+
+## ✍️ Review Endpoints
+
+> You can only have one review per movie. All modifications are user-scoped via JWT.
+
+### 25. Review a Movie
+
+**Endpoint**: `POST /reviews`  
+**Access**: 🔒 Authenticated  
+**Description**: Write a review for a movie
+
+**Request Body**:
+```json
+{
+  "movieId": 1,
+  "reviewText": "Amazing movie! A true masterpiece."
+}
+```
+
+**Response** (200 OK):
+```json
+{
+  "reviewId": 201,
+  "movieId": 1,
+  "movieTitle": "Inception",
+  "username": "john_doe",
+  "reviewText": "Amazing movie! A true masterpiece.",
+  "reviewDate": "2024-03-10T15:30:00.000+00:00"
+}
+```
+
+**Error Responses**:
+- `400` — Review text cannot be empty
+- `400` — You have already reviewed this movie. Use PUT to update your review.
+
+**Example cURL**:
+```bash
+curl -X POST http://localhost:8080/api/v1/reviews \
+  -H "Authorization: Bearer <your_token>" \
+  -H "Content-Type: application/json" \
+  -d '{ "movieId": 1, "reviewText": "Amazing movie! A true masterpiece." }'
+```
+
+---
+
+### 26. Update Movie Review
+
+**Endpoint**: `PUT /reviews`  
+**Access**: 🔒 Authenticated  
+**Description**: Update an existing review
+
+**Request Body**:
+```json
+{
+  "movieId": 1,
+  "reviewText": "Updated review text."
+}
+```
+
+**Response** (200 OK):
+```json
+{
+  "reviewId": 201,
+  "movieId": 1,
+  "movieTitle": "Inception",
+  "username": "john_doe",
+  "reviewText": "Updated review text.",
+  "reviewDate": "2024-03-11T09:12:00.000+00:00"
+}
+```
+
+**Example cURL**:
+```bash
+curl -X PUT http://localhost:8080/api/v1/reviews \
+  -H "Authorization: Bearer <your_token>" \
+  -H "Content-Type: application/json" \
+  -d '{ "movieId": 1, "reviewText": "Updated review text." }'
+```
+
+---
+
+### 27. Get My Reviews
+
+**Endpoint**: `GET /reviews`  
+**Access**: 🔒 Authenticated  
+**Description**: Retrieve all your reviews
+
+**Response** (200 OK):
+```json
+[
+  {
+    "reviewId": 201,
+    "movieId": 1,
+    "movieTitle": "Inception",
+    "username": "john_doe",
+    "reviewText": "Updated review text.",
+    "reviewDate": "2024-03-11T09:12:00.000+00:00"
+  }
+]
+```
+
+**Example cURL**:
+```bash
+curl -X GET http://localhost:8080/api/v1/reviews \
+  -H "Authorization: Bearer <your_token>"
+```
+
+---
+
+### 28. Delete Review
+
+**Endpoint**: `DELETE /reviews/{movieId}`  
+**Access**: 🔒 Authenticated  
+**Description**: Remove your review for a movie
+
+**Path Parameters**:
+- `movieId` (Integer): Movie ID
+
+**Response** (200 OK):
+```json
+"Review deleted successfully."
+```
+
+**Example cURL**:
+```bash
+curl -X DELETE http://localhost:8080/api/v1/reviews/1 \
+  -H "Authorization: Bearer <your_token>"
+```
+
+---
+
+### 29. Get Reviews for Movie
+
+**Endpoint**: `GET /reviews/movie/{movieId}`  
+**Access**: Public  
+**Description**: Get all user reviews for a specific movie
+
+**Path Parameters**:
+- `movieId` (Integer): Movie ID
+
+**Example cURL**:
+```bash
+curl -X GET http://localhost:8080/api/v1/reviews/movie/1
 ```
 
 ---
