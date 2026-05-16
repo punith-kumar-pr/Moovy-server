@@ -22,6 +22,8 @@ public class MovieResponseDto {
     private String tagline;
     private String trailerUrl;
     private List<GenreDto> genres;
+    private List<CastDto> casts;
+    private List<CrewDto> crews;
 
     @Data
     public static class GenreDto {

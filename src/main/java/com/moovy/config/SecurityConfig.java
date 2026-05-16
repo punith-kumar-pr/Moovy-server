@@ -56,6 +56,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api/v1/genres").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/movies/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/persons/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/ratings/movie/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/reviews/movie/**").permitAll()
                         // Admin only

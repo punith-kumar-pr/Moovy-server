@@ -72,6 +72,18 @@ public class MovieServiceImpl implements MovieService {
                     })
                     .collect(Collectors.toList()));
 
+            if (movie.getMovieCasts() != null) {
+                dto.setCasts(movie.getMovieCasts().stream()
+                        .map(MovieCreditServiceImpl::mapToCastDto)
+                        .collect(Collectors.toList()));
+            }
+
+            if (movie.getMovieCrews() != null) {
+                dto.setCrews(movie.getMovieCrews().stream()
+                        .map(MovieCreditServiceImpl::mapToCrewDto)
+                        .collect(Collectors.toList()));
+            }
+
             return dto;
         }).collect(Collectors.toList());
     }

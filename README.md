@@ -143,6 +143,8 @@ http://localhost:8080/api/v1
 | `GET` | `/movies/by-genres` | Public | Filter by multiple genres |
 | `GET` | `/movies/search` | Public | Search movies |
 | `GET` | `/genres` | Public | List all genres |
+| `GET` | `/persons` | Public | List all persons (cast/crew) |
+| `GET` | `/persons/{id}` | Public | Get person by ID |
 | `POST` | `/ratings` | 🔒 Authenticated | Rate a movie |
 | `PUT` | `/ratings` | 🔒 Authenticated | Update movie rating |
 | `GET` | `/ratings` | 🔒 Authenticated | Get own ratings |
@@ -162,6 +164,13 @@ http://localhost:8080/api/v1
 | `GET` | `/admin/users` | 🔒 Admin | List all users |
 | `PUT` | `/admin/users/{userId}/roles` | 🔒 Admin | Assign roles |
 | `DELETE` | `/admin/users/{userId}` | 🔒 Admin | Deactivate user |
+| `POST` | `/admin/movies/credits/{movieId}/cast` | 🔒 Admin | Add cast member |
+| `DELETE` | `/admin/movies/credits/cast/{castId}` | 🔒 Admin | Remove cast |
+| `POST` | `/admin/movies/credits/{movieId}/crew` | 🔒 Admin | Add crew member |
+| `DELETE` | `/admin/movies/credits/crew/{crewId}` | 🔒 Admin | Remove crew |
+| `POST` | `/persons` | 🔒 Admin | Create new person |
+| `PUT` | `/persons/{id}` | 🔒 Admin | Update person details |
+| `DELETE` | `/persons/{id}` | 🔒 Admin | Delete a person |
 
 ---
 
@@ -434,6 +443,36 @@ curl -X PUT http://localhost:8080/api/v1/me/change-contact \
     "genres": [
       { "id": 1, "genreName": "Action" },
       { "id": 2, "genreName": "Sci-Fi" }
+    ],
+    "casts": [
+      {
+        "id": 1,
+        "person": {
+          "personId": 101,
+          "name": "Leonardo DiCaprio",
+          "birthdate": "1974-11-11",
+          "nationality": "American",
+          "profileImageUrl": "https://...",
+          "biography": "American actor..."
+        },
+        "characterName": "Cobb",
+        "order": 1
+      }
+    ],
+    "crews": [
+      {
+        "id": 1,
+        "person": {
+          "personId": 201,
+          "name": "Christopher Nolan",
+          "birthdate": "1970-07-30",
+          "nationality": "British",
+          "profileImageUrl": "https://...",
+          "biography": "British-American director..."
+        },
+        "job": "Director",
+        "department": "Directing"
+      }
     ]
   }
 ]

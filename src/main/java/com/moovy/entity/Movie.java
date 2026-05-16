@@ -52,4 +52,12 @@ public class Movie {
     @JsonManagedReference // Parent side
     private Set<MovieGenre> movieGenres;
 
+    @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private Set<MovieCast> movieCasts;
+
+    @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private Set<MovieCrew> movieCrews;
+
 }
