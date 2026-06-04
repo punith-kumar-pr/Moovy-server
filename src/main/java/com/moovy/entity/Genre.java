@@ -3,6 +3,8 @@ package com.moovy.entity;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.Set;
 
@@ -21,6 +23,8 @@ public class Genre {
 
     @OneToMany(mappedBy = "genre")
     @JsonManagedReference // Parent side
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Set<MovieGenre> movieGenres;
 
 }

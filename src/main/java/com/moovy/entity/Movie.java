@@ -3,6 +3,8 @@ package com.moovy.entity;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -50,14 +52,20 @@ public class Movie {
 
     @OneToMany(mappedBy = "movie")
     @JsonManagedReference // Parent side
-    private Set<MovieGenre> movieGenres;
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private Set<MovieGenre> movieGenres = new java.util.HashSet<>();
 
     @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private Set<MovieCast> movieCasts;
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private Set<MovieCast> movieCasts = new java.util.HashSet<>();
 
     @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private Set<MovieCrew> movieCrews;
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private Set<MovieCrew> movieCrews = new java.util.HashSet<>();
 
 }

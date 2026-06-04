@@ -17,10 +17,14 @@ public class MovieGenre {
     @ManyToOne
     @JoinColumn(name = "movie_id")
     @JsonBackReference // Child side
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Movie movie;
 
     @ManyToOne
     @JoinColumn(name = "genre_id")
     @JsonBackReference // Child side
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Genre genre;
 }
