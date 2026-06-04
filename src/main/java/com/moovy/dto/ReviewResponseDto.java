@@ -16,4 +16,5 @@ public class ReviewResponseDto {
     private String username;
     private String reviewText;
     private Date reviewDate;
+    private Integer rating;
 }

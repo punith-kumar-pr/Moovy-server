@@ -3,11 +3,13 @@ package com.moovy.service.impls;
 import com.moovy.dto.ReviewRequestDto;
 import com.moovy.dto.ReviewResponseDto;
 import com.moovy.entity.Movie;
+import com.moovy.entity.Rating;
 import com.moovy.entity.Review;
 import com.moovy.entity.User;
 import com.moovy.exception.BadRequestException;
 import com.moovy.exception.ResourceNotFoundException;
 import com.moovy.repository.MovieRepository;
+import com.moovy.repository.RatingRepository;
 import com.moovy.repository.ReviewRepository;
 import com.moovy.repository.UserRepository;
 import com.moovy.service.ReviewService;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,6 +33,9 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Autowired
     private MovieRepository movieRepository;
+
+    @Autowired
+    private RatingRepository ratingRepository;
 
     @Override
     public ReviewResponseDto addReview(String username, ReviewRequestDto dto) {
@@ -114,6 +120,10 @@ public class ReviewServiceImpl implements ReviewService {
         dto.setUsername(review.getUser().getUsername());
         dto.setReviewText(review.getReviewText());
         dto.setReviewDate(review.getReviewDate());
+        
+        Optional<Rating> ratingOpt = ratingRepository.findByUserAndMovie(review.getUser(), review.getMovie());
+        ratingOpt.ifPresent(rating -> dto.setRating(rating.getRating()));
+        
         return dto;
     }
 }
